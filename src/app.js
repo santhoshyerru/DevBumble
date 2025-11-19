@@ -1,6 +1,13 @@
 const express = require("express");
-
+const { adminAuth } = require("./middlewares/auth");
 const app = express();
+
+app.use("/admin", adminAuth);
+
+app.get("/admin", (req, res) => {
+  throw new Error("Admin route error");
+  res.send("Admin route");
+});
 
 app.get("/user", (req, res) => {
   res.send({
@@ -24,6 +31,17 @@ app.delete("/user", (req, res) => {
 
 app.patch("/user", (req, res) => {
   res.send("User patched successfully");
+});
+
+//advanced route handling
+app.get(/^\/user(s)?$/, (req, res) => {
+  res.send("User route");
+});
+
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // app.use("/hello", (req, res) => {

@@ -1,52 +1,29 @@
 const express = require("express");
-const { adminAuth } = require("./middlewares/auth");
+const connectDB = require("./config/database");
 const app = express();
+const cookieParser = require("cookie-parser");
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 
-app.use("/admin", adminAuth);
+app.use(express.json());
+app.use(cookieParser());
 
-app.get("/admin", (req, res) => {
-  throw new Error("Admin route error");
-  res.send("Admin route");
-});
+app.use(authRouter);
+app.use(profileRouter);
+app.use(requestRouter);
 
-app.get("/user", (req, res) => {
-  res.send({
-    name: "John",
-    age: 20,
-    city: "New York",
+connectDB()
+  .then(() => {
+    console.log("Database connected");
+    app.listen(3000, () => {
+      console.log("Server started on port 3000");
+    });
+  })
+  .catch((err) => {
+    console.log(err);
   });
-});
-
-app.post("/user", (req, res) => {
-  res.send("User created successfully");
-});
-
-app.put("/user", (req, res) => {
-  res.send("User updated successfully");
-});
-
-app.delete("/user", (req, res) => {
-  res.send("User deleted successfully");
-});
-
-app.patch("/user", (req, res) => {
-  res.send("User patched successfully");
-});
-
-//advanced route handling
-app.get(/^\/user(s)?$/, (req, res) => {
-  res.send("User route");
-});
-
-app.use("/", (err, req, res, next) => {
-  if (err) {
-    res.status(500).send("Internal Server Error");
-  }
-});
 
 // app.use("/hello", (req, res) => {
 //   res.send("Hello from the server!");
 // });
-app.listen(3000, () => {
-  console.log("Server started on port 3000");
-});
